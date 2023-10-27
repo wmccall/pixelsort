@@ -68,5 +68,5 @@ choices = {
     "hue": hue,
     "intensity": intensity,
     "minimum": minimum,
-    "saturation": saturation
+    "saturation": saturation,
 }

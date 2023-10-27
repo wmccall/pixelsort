@@ -3,7 +3,7 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open('requirements.txt') as fh:
+with open("requirements.txt") as fh:
     requirements = fh.read().splitlines()
 
 setuptools.setup(
@@ -21,5 +21,5 @@ setuptools.setup(
         "Programming Language :: Python",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-    ]
+    ],
 )
