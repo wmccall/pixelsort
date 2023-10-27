@@ -9,13 +9,12 @@ class SuperPixel:
 
 def _extract_super_pixel(
     image: Image.Image,
-    image_width: int,
-    image_height: int,
     row: int,
     col: int,
     super_pixel_size: int,
 ) -> dict:
     # Calculate the coordinates for the super pixel region
+    image_width, image_height = image.size
     left = col
     upper = row
     right = min(col + super_pixel_size, image_width)
@@ -29,16 +28,15 @@ def _extract_super_pixel(
 
 def _image_to_2d_super_pixel_array(
     image: Image.Image,
-    image_height: int,
-    image_width: int,
     super_pixel_size: int,
 ) -> list[list[SuperPixel]]:
+    image_width, image_height = image.size
     super_pixels = []
     for row in range(0, image_height, super_pixel_size):
         super_pixel_row = []
         for col in range(0, image_width, super_pixel_size):
             super_pixel = _extract_super_pixel(
-                image, image_width, image_height, row, col, super_pixel_size
+                image, row, col, super_pixel_size
             )
             super_pixel_row.append(super_pixel)
         super_pixels.append(super_pixel_row)
@@ -47,19 +45,15 @@ def _image_to_2d_super_pixel_array(
 
 class SuperPixelImage:
     def __init__(self, image: Image.Image, super_pixel_size: int):
-        image_width, image_height = image.size
         self.super_pixels = _image_to_2d_super_pixel_array(
             image=image,
-            image_width=image_width,
-            image_height=image_height,
             super_pixel_size=super_pixel_size,
         )
         self.super_pixel_size = super_pixel_size
-        self.image_width = image_width
-        self.image_height = image_height
+        self.size = image.size
 
     def to_standard_image(self) -> Image.Image:
-        new_image = Image.new("RGB", (self.image_width, self.image_height))
+        new_image = Image.new("RGB", self.size)
 
         # Paste each super_pixel into the new image at its corresponding position in the grid
         y_offset = 0
