@@ -52,6 +52,7 @@ def pixelsort(
     super_pixel_image = SuperPixelImage(image=original, super_pixel_size=super_pixel_size)
     # import pdb; pdb.set_trace()
     # return super_pixel_image.to_standard_image()
+    # return super_pixel_image.to_scaled_image()
 
     mask_image = mask_image if mask_image else Image.new(
         "1", original.size, color=255)

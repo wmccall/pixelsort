@@ -3,6 +3,7 @@ from PIL import Image
 class SuperPixel:
     def __init__(self, pixels: Image):
         self.pixels = pixels
+        self.average_pixel = pixels.resize((1,1))
 
 def _extract_super_pixel(
         image: Image.Image,
@@ -50,13 +51,12 @@ class SuperPixelImage:
         self.super_pixel_size = super_pixel_size
         self.image_width = image_width
         self.image_height = image_height
-    
 
 
     def to_standard_image(self) -> Image.Image:
         new_image = Image.new('RGB', (self.image_width, self.image_height))
 
-        # Paste each image into the new image at its corresponding position in the grid
+        # Paste each super_pixel into the new image at its corresponding position in the grid
         y_offset = 0
         for row in self.super_pixels:
             x_offset = 0
@@ -65,4 +65,17 @@ class SuperPixelImage:
                 new_image.paste(pixels, (x_offset, y_offset))
                 x_offset += pixels.width # Using super_pixel width since it could be an edge super pixel
             y_offset += self.super_pixel_size
+        return new_image
+
+    def to_scaled_image(self) -> Image.Image:
+        image_height = len(self.super_pixels)
+        image_width = len(self.super_pixels[0])
+        new_image = Image.new('RGB', (image_width, image_height))
+
+        # Paste each average_pixel into the new image at its corresponding position in the grid
+        for y_offset, row in enumerate(self.super_pixels):
+            x_offset = 0
+            for x_offset, super_pixel in enumerate(row):
+                pixels = super_pixel.average_pixel
+                new_image.paste(pixels, (x_offset, y_offset))
         return new_image
