@@ -30,3 +30,10 @@ def crop_to(image_to_crop: Image.Image, reference_image: Image.Image) -> Image.I
             int(upper),
             int(right),
             int(lower)))
+
+
+def downscale_image(image: Image, scale: int) -> Image:
+    width, height = image.size
+    width = int(width*scale)
+    height = int(height*scale)
+    return image.resize((width, height))

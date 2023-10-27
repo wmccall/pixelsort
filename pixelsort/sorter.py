@@ -11,7 +11,8 @@ def sort_image(
         mask_data: PyAccess.PyAccess,
         intervals: typing.List[typing.List[int]],
         randomness: float,
-        sorting_function: typing.Callable[[typing.List[typing.Tuple[int, int, int]]], float]):
+        sorting_function: typing.Callable[[typing.List[typing.Tuple[int, int, int]]], float]
+    ):
     sorted_pixels = []
 
     for y in range(size[1]):

@@ -9,7 +9,8 @@ from pixelsort.constants import DEFAULTS
 from pixelsort.interval import choices as interval_choices
 from pixelsort.sorter import sort_image
 from pixelsort.sorting import choices as sorting_choices
-from pixelsort.util import crop_to
+from pixelsort.util import crop_to, downscale_image
+from pixelsort.super_pixel_image import SuperPixelImage
 
 
 def pixelsort(
@@ -24,7 +25,8 @@ def pixelsort(
         DEFAULTS["interval_function"],
         lower_threshold: float = DEFAULTS["lower_threshold"],
         upper_threshold: float = DEFAULTS["upper_threshold"],
-        angle: float = DEFAULTS["angle"]
+        angle: float = DEFAULTS["angle"],
+        super_pixel_size: int = DEFAULTS["super_pixel_size"]
 ) -> Image.Image:
     """
     pixelsorts an image
@@ -40,11 +42,16 @@ def pixelsort(
     :param upper_threshold: How bright must a pixel be to be considered as a 'border' for sorting? Takes values from
         0-1. Used in threshold mode.
     :param angle: Angle at which you're pixel sorting in degrees.
+    :param super_pixel_size:
     :return: pixelsorted image
     """
     original = image
     image = image.convert('RGBA').rotate(angle, expand=True)
     image_data = image.load()
+
+    super_pixel_image = SuperPixelImage(image=original, super_pixel_size=super_pixel_size)
+    # import pdb; pdb.set_trace()
+    # return super_pixel_image.to_standard_image()
 
     mask_image = mask_image if mask_image else Image.new(
         "1", original.size, color=255)
@@ -69,7 +76,8 @@ def pixelsort(
         mask_data,
         intervals,
         randomness,
-        sorting_choices[sorting_function])
+        sorting_choices[sorting_function]
+    )
 
     output_img = _place_pixels(
         sorted_pixels,

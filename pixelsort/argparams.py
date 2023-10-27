@@ -44,6 +44,12 @@ def parse_args():
         default=DEFAULTS["angle"],
         help="Rotate the image by an angle (in degrees) before sorting")
     parser.add_argument(
+        "-p",
+        "--super_pixel_size",
+        type=int,
+        default=DEFAULTS["super_pixel_size"],
+        help="Size of super pixel")
+    parser.add_argument(
         "-r",
         "--randomness",
         type=float,
@@ -83,6 +89,7 @@ def parse_args():
         "upper_threshold": _args.upper_threshold,
         "char_length": _args.char_length,
         "angle": _args.angle,
+        "super_pixel_size": _args.super_pixel_size,
         "randomness": _args.randomness,
         "sorting_function": _args.sorting_function,
         "mask_path": _args.mask

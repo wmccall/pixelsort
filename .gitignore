@@ -3,6 +3,7 @@
 
 #VirtualEnv
 venv
+.python-version
 
 #PyCharm
 .idea
