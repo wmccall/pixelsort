@@ -97,6 +97,7 @@ def pixelsort(
         sorting_choices[sorting_function],
     )
 
+    logging.debug("Processing sorted pixels...")
     output_img = _place_pixels(sorted_pixels, mask_data, super_pixel_image)
     if angle != 0:
         output_img = output_img.rotate(-angle, expand=True)
@@ -109,6 +110,7 @@ def pixelsort(
     # Squash pixel sorted image onto original to ensure no unexpected transparencies
     final_image.paste(output_img, (0, 0), final_mask)
 
+    logging.debug("Done...")
     return final_image
 
 

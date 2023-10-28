@@ -23,5 +23,6 @@ if interval_file_path:
     logging.debug("Opening interval file...")
     args["interval_image"] = Image.open(interval_file_path)
 
+image = pixelsort(**args)
 logging.debug("Saving image...")
-pixelsort(**args).save(image_output_path)
+image.save(image_output_path)
