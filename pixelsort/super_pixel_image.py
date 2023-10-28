@@ -9,8 +9,12 @@ class SuperPixel:
         self.pixels = pixels
         self.average_pixel = pixels.resize((1, 1)).load()[0, 0]
 
+
 def calculate_scaled_size(size, super_pixel_size):
-    return (math.ceil(size[0]/super_pixel_size), math.ceil(size[1]/super_pixel_size))
+    return (
+        math.ceil(size[0] / super_pixel_size),
+        math.ceil(size[1] / super_pixel_size),
+    )
 
 
 def _extract_super_pixel(
