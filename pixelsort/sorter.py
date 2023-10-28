@@ -16,7 +16,7 @@ def sort_image(
     sorting_function: typing.Callable[
         [typing.List[typing.Tuple[int, int, int]]], float
     ],
-):
+) -> list[list[SuperPixel]]:
     sorted_pixels = []
 
     for y in range(size[1]):
@@ -33,7 +33,8 @@ def sort_image(
                 row += sort_interval(interval, sorting_function)
             x_min = x_max
         sorted_pixels.append(row)
-    super_pixel_image.super_pixels = sorted_pixels
+    # import pdb; pdb.set_trace()
+    return sorted_pixels
 
 
 def sort_interval(

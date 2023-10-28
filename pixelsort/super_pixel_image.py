@@ -7,6 +7,8 @@ class SuperPixel:
     def __init__(self, pixels: Image):
         self.pixels = pixels
         self.average_pixel = pixels.resize((1, 1)).load()[0, 0]
+        # print(self.average_pixel)
+        # import pdb; pdb.set_trace()
 
 
 def _extract_super_pixel(
@@ -34,9 +36,10 @@ def _image_to_2d_super_pixel_array(
 ) -> np.ndarray:
     logging.debug("Generating Array...")
     image_width, image_height = image.size
+    print(image.size)
     super_pixels = []
     for row in range(0, image_height, super_pixel_size):
-        logging.debug(f"Generating Row {row/super_pixel_size}...")
+        # logging.debug(f"Generating Row {row/super_pixel_size}...")
         super_pixel_row = []
         for col in range(0, image_width, super_pixel_size):
             super_pixel = _extract_super_pixel(image, row, col, super_pixel_size)
@@ -61,7 +64,7 @@ class SuperPixelImage:
         self.size = (len(self.super_pixels), len(self.super_pixels[0]))
 
     def to_standard_image(self) -> Image.Image:
-        new_image = Image.new("RGB", self.original_size)
+        new_image = Image.new("RGBA", self.original_size)
 
         # Paste each super_pixel into the new image at its corresponding position in the grid
         y_offset = 0

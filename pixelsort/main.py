@@ -11,7 +11,7 @@ from pixelsort.interval import choices as interval_choices
 from pixelsort.sorter import sort_image
 from pixelsort.sorting import choices as sorting_choices
 from pixelsort.util import crop_to, downscale_image
-from pixelsort.super_pixel_image import SuperPixelImage
+from pixelsort.super_pixel_image import SuperPixelImage, SuperPixel
 
 
 def pixelsort(
@@ -50,11 +50,12 @@ def pixelsort(
     """
     original = image
     image = image.convert("RGBA").rotate(angle, expand=True)
-    image_data = image.load()
+    # image_data = image.load()
+    # return image
 
     logging.debug("Converting to SuperPixelImage...")
     super_pixel_image = SuperPixelImage(
-        image=original, super_pixel_size=super_pixel_size
+        image=image, super_pixel_size=super_pixel_size
     )
 
     # import pdb; pdb.set_trace()
@@ -85,7 +86,7 @@ def pixelsort(
         interval_image=interval_image,
     )
     logging.debug("Sorting pixels...")
-    sort_image(
+    sorted_pixels = sort_image(
         super_pixel_image.size,
         super_pixel_image,
         mask_data,
@@ -98,9 +99,9 @@ def pixelsort(
 
     # TODO: rotate image back
 
-    return super_pixel_image.to_standard_image()
-
-    output_img = _place_pixels(sorted_pixels, mask_data, image_data, image.size)
+    # output_img = super_pixel_image.to_standard_image()
+    # return output_img
+    output_img = _place_pixels(sorted_pixels, mask_data, super_pixel_image, super_pixel_image.size)
     if angle != 0:
         output_img = output_img.rotate(-angle, expand=True)
         output_img = crop_to(output_img, original)
@@ -109,19 +110,21 @@ def pixelsort(
 
 
 def _place_pixels(
-    pixels: PyAccess.PyAccess,
+    pixels: list[list[SuperPixel]],
     mask: PyAccess.PyAccess,
-    original: PyAccess.PyAccess,
+    original: SuperPixelImage,
     size: typing.Tuple[int, int],
 ):
-    output_img = Image.new("RGBA", size)
-    outputdata = output_img.load()  # modifying pixelaccess modified original
+    super_pixel_size = original.super_pixel_size
+    output_img = Image.new("RGBA", original.original_size)
+    # outputdata = output_img.load()  # modifying pixelaccess modified original
     for y in range(size[1]):
         count = 0
         for x in range(size[0]):
             if not mask[x, y]:
-                outputdata[x, y] = original[x, y]
+                # import pdb; pdb.set_trace()
+                output_img.paste(original.super_pixels[x, y].pixels, (x*super_pixel_size, y*super_pixel_size))
             else:
-                outputdata[x, y] = pixels[y][count]
+                output_img.paste(pixels[y][count].pixels, (x*super_pixel_size, y*super_pixel_size))
                 count += 1
     return output_img
