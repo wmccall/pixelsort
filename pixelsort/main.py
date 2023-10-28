@@ -11,7 +11,7 @@ from pixelsort.interval import choices as interval_choices
 from pixelsort.sorter import sort_image
 from pixelsort.sorting import choices as sorting_choices
 from pixelsort.util import crop_to, downscale_image
-from pixelsort.super_pixel_image import SuperPixelImage, SuperPixel
+from pixelsort.super_pixel_image import SuperPixelImage, SuperPixel, calculate_scaled_size
 
 
 def pixelsort(
@@ -56,7 +56,7 @@ def pixelsort(
 
     logging.debug("Loading Mask...")
     mask_image = (
-        mask_image if mask_image else Image.new("1", super_pixel_image.size, color=255)
+        mask_image if mask_image else Image.new("1", calculate_scaled_size(original.size, super_pixel_size), color=255)
     )
     mask_image = mask_image.convert("1").rotate(angle, expand=True, fillcolor=0)
     mask_data = mask_image.load()
@@ -65,7 +65,7 @@ def pixelsort(
     if interval_image:
         threshold = 200
         fn = lambda x: 255 if x > threshold else 0
-        interval_image = interval_image.resize(super_pixel_image.size)
+        interval_image = interval_image.resize(calculate_scaled_size(original.size, super_pixel_size))
         interval_image = interval_image.convert("L").point(fn, mode="1")
         interval_image = interval_image.rotate(angle, expand=True)
 
