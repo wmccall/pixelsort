@@ -50,17 +50,11 @@ def pixelsort(
     """
     original = image
     image = image.convert("RGBA").rotate(angle, expand=True)
-    # image_data = image.load()
-    # return image
 
     logging.debug("Converting to SuperPixelImage...")
     super_pixel_image = SuperPixelImage(
         image=image, super_pixel_size=super_pixel_size
     )
-
-    # import pdb; pdb.set_trace()
-    # return super_pixel_image.to_standard_image()
-    # return super_pixel_image.to_scaled_image()
 
     logging.debug("Loading Mask...")
     mask_image = (
@@ -95,13 +89,7 @@ def pixelsort(
         sorting_choices[sorting_function],
     )
 
-    # import pdb; pdb.set_trace()
-
-    # TODO: rotate image back
-
-    # output_img = super_pixel_image.to_standard_image()
-    # return output_img
-    output_img = _place_pixels(sorted_pixels, mask_data, super_pixel_image, super_pixel_image.size)
+    output_img = _place_pixels(sorted_pixels, mask_data, super_pixel_image)
     if angle != 0:
         output_img = output_img.rotate(-angle, expand=True)
         output_img = crop_to(output_img, original)
@@ -112,18 +100,18 @@ def pixelsort(
 def _place_pixels(
     pixels: list[list[SuperPixel]],
     mask: PyAccess.PyAccess,
-    original: SuperPixelImage,
-    size: typing.Tuple[int, int],
+    super_pixel_image: SuperPixelImage,
 ):
-    super_pixel_size = original.super_pixel_size
-    output_img = Image.new("RGBA", original.original_size)
+    super_pixel_size = super_pixel_image.super_pixel_size
+    output_img = Image.new("RGBA", super_pixel_image.original_size)
+    size = super_pixel_image.size
     # outputdata = output_img.load()  # modifying pixelaccess modified original
     for y in range(size[1]):
         count = 0
         for x in range(size[0]):
             if not mask[x, y]:
                 # import pdb; pdb.set_trace()
-                output_img.paste(original.super_pixels[x, y].pixels, (x*super_pixel_size, y*super_pixel_size))
+                output_img.paste(super_pixel_image.super_pixels[x, y].pixels, (x*super_pixel_size, y*super_pixel_size))
             else:
                 output_img.paste(pixels[y][count].pixels, (x*super_pixel_size, y*super_pixel_size))
                 count += 1
