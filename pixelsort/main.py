@@ -94,7 +94,14 @@ def pixelsort(
         output_img = output_img.rotate(-angle, expand=True)
         output_img = crop_to(output_img, original)
 
-    return output_img
+    final_image = original.convert("RGBA")
+    # Create a binary mask where 0 (fully transparent) is treated as 0 (transparent), and any other value is treated as 255 (opaque)
+    final_mask = output_img.getchannel('A').point(lambda p: p > 0, mode='1')
+
+    # Squash pixel sorted image onto original to ensure no unexpected transparencies
+    final_image.paste(output_img, (0,0), final_mask)
+
+    return final_image
 
 
 def _place_pixels(
