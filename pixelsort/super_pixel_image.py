@@ -6,7 +6,7 @@ import numpy as np
 class SuperPixel:
     def __init__(self, pixels: Image):
         self.pixels = pixels
-        self.average_pixel = pixels.resize((1, 1)).load()[0,0]
+        self.average_pixel = pixels.resize((1, 1)).load()[0, 0]
 
 
 def _extract_super_pixel(
@@ -39,9 +39,7 @@ def _image_to_2d_super_pixel_array(
         logging.debug(f"Generating Row {row/super_pixel_size}...")
         super_pixel_row = []
         for col in range(0, image_width, super_pixel_size):
-            super_pixel = _extract_super_pixel(
-                image, row, col, super_pixel_size
-            )
+            super_pixel = _extract_super_pixel(image, row, col, super_pixel_size)
             super_pixel_row.append(super_pixel)
         super_pixels.append(super_pixel_row)
     logging.debug("Converting to Numpy Array...")

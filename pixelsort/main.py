@@ -62,16 +62,18 @@ def pixelsort(
     # return super_pixel_image.to_scaled_image()
 
     logging.debug("Loading Mask...")
-    mask_image = mask_image if mask_image else Image.new("1", super_pixel_image.size, color=255)
+    mask_image = (
+        mask_image if mask_image else Image.new("1", super_pixel_image.size, color=255)
+    )
     mask_image = mask_image.convert("1").rotate(angle, expand=True, fillcolor=0)
     mask_data = mask_image.load()
 
     logging.debug("Loading Interval Image...")
     if interval_image:
         threshold = 200
-        fn = lambda x : 255 if x > threshold else 0
+        fn = lambda x: 255 if x > threshold else 0
         interval_image = interval_image.resize(super_pixel_image.size)
-        interval_image = interval_image.convert('L').point(fn, mode='1')
+        interval_image = interval_image.convert("L").point(fn, mode="1")
         interval_image = interval_image.rotate(angle, expand=True)
 
     logging.debug("Determining intervals...")

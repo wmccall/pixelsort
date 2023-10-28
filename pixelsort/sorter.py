@@ -38,8 +38,6 @@ def sort_image(
 
 def sort_interval(
     interval: typing.List,
-    sorting_function: typing.Callable[
-        [typing.List[SuperPixel]], float
-    ],
+    sorting_function: typing.Callable[[typing.List[SuperPixel]], float],
 ):
     return [] if interval == [] else sorted(interval, key=sorting_function)

@@ -75,7 +75,9 @@ def waves(image: SuperPixelImage, char_length, **_) -> typing.List[typing.List[i
     return intervals
 
 
-def file_mask(image: SuperPixelImage, interval_image, **_) -> typing.List[typing.List[int]]:
+def file_mask(
+    image: SuperPixelImage, interval_image, **_
+) -> typing.List[typing.List[int]]:
     """Intervals taken from another specified input image. Must be black and white, and the same size as the input
     image."""
     intervals = []
