@@ -64,8 +64,9 @@ class SuperPixelImage:
         new_image = Image.new("RGBA", self.original_size)
 
         # Paste each super_pixel into the new image at its corresponding position in the grid
+        corrected_pixels = np.transpose(self.super_pixels)
         y_offset = 0
-        for row in self.super_pixels:
+        for row in corrected_pixels:
             x_offset = 0
             for super_pixel in row:
                 pixels = super_pixel.pixels
@@ -80,7 +81,8 @@ class SuperPixelImage:
         new_image = Image.new("RGB", self.size)
 
         # Paste each average_pixel into the new image at its corresponding position in the grid
-        for y_offset, row in enumerate(self.super_pixels):
+        corrected_pixels = np.transpose(self.super_pixels)
+        for y_offset, row in corrected_pixels:
             x_offset = 0
             for x_offset, super_pixel in enumerate(row):
                 pixels = super_pixel.average_pixel
