@@ -52,9 +52,7 @@ def pixelsort(
     image = image.convert("RGBA").rotate(angle, expand=True)
 
     logging.debug("Converting to SuperPixelImage...")
-    super_pixel_image = SuperPixelImage(
-        image=image, super_pixel_size=super_pixel_size
-    )
+    super_pixel_image = SuperPixelImage(image=image, super_pixel_size=super_pixel_size)
 
     logging.debug("Loading Mask...")
     mask_image = (
@@ -96,10 +94,10 @@ def pixelsort(
 
     final_image = original.convert("RGBA")
     # Create a binary mask where 0 (fully transparent) is treated as 0 (transparent), and any other value is treated as 255 (opaque)
-    final_mask = output_img.getchannel('A').point(lambda p: p > 0, mode='1')
+    final_mask = output_img.getchannel("A").point(lambda p: p > 0, mode="1")
 
     # Squash pixel sorted image onto original to ensure no unexpected transparencies
-    final_image.paste(output_img, (0,0), final_mask)
+    final_image.paste(output_img, (0, 0), final_mask)
 
     return final_image
 
@@ -112,14 +110,18 @@ def _place_pixels(
     super_pixel_size = super_pixel_image.super_pixel_size
     output_img = Image.new("RGBA", super_pixel_image.original_size)
     size = super_pixel_image.size
-    # outputdata = output_img.load()  # modifying pixelaccess modified original
     for y in range(size[1]):
         count = 0
         for x in range(size[0]):
             if not mask[x, y]:
-                # import pdb; pdb.set_trace()
-                output_img.paste(super_pixel_image.super_pixels[x, y].pixels, (x*super_pixel_size, y*super_pixel_size))
+                output_img.paste(
+                    super_pixel_image.super_pixels[x, y].pixels,
+                    (x * super_pixel_size, y * super_pixel_size),
+                )
             else:
-                output_img.paste(pixels[y][count].pixels, (x*super_pixel_size, y*super_pixel_size))
+                output_img.paste(
+                    pixels[y][count].pixels,
+                    (x * super_pixel_size, y * super_pixel_size),
+                )
                 count += 1
     return output_img

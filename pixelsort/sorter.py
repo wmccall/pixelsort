@@ -33,7 +33,6 @@ def sort_image(
                 row += sort_interval(interval, sorting_function)
             x_min = x_max
         sorted_pixels.append(row)
-    # import pdb; pdb.set_trace()
     return sorted_pixels
 
 
