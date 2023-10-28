@@ -4,10 +4,11 @@ from random import randint, random as random_range
 from PIL import ImageFilter, Image
 
 from pixelsort.sorting import lightness
+from pixelsort.super_pixel_image import SuperPixelImage
 
 
 def edge(
-    image: Image.Image, lower_threshold: float, **_
+    image: SuperPixelImage, lower_threshold: float, **_
 ) -> typing.List[typing.List[int]]:
     """Performs an edge detection, which is used to define intervals. Tweak threshold with threshold."""
     edge_data = image.filter(ImageFilter.FIND_EDGES).convert("RGBA").load()
@@ -26,12 +27,12 @@ def edge(
 
 
 def threshold(
-    image: Image.Image, lower_threshold: float, upper_threshold: float, **_
+    image: SuperPixelImage, lower_threshold: float, upper_threshold: float, **_
 ) -> typing.List[typing.List[int]]:
     """Intervals defined by lightness thresholds; only pixels with a lightness between the upper and lower thresholds
     are sorted."""
     intervals = []
-    image_data = image.load()
+    image_data = image.super_pixels
     for y in range(image.size[1]):
         intervals.append([])
         for x in range(image.size[0]):
@@ -41,7 +42,7 @@ def threshold(
     return intervals
 
 
-def random(image, char_length, **_) -> typing.List[typing.List[int]]:
+def random(image: SuperPixelImage, char_length, **_) -> typing.List[typing.List[int]]:
     """Randomly generate intervals. Distribution of widths is linear by default. Interval widths can be scaled using
     char_length."""
     intervals = []
@@ -58,7 +59,7 @@ def random(image, char_length, **_) -> typing.List[typing.List[int]]:
     return intervals
 
 
-def waves(image, char_length, **_) -> typing.List[typing.List[int]]:
+def waves(image: SuperPixelImage, char_length, **_) -> typing.List[typing.List[int]]:
     """Intervals are waves of nearly uniform widths. Control width of waves with char_length."""
     intervals = []
 
@@ -74,7 +75,7 @@ def waves(image, char_length, **_) -> typing.List[typing.List[int]]:
     return intervals
 
 
-def file_mask(image, interval_image, **_) -> typing.List[typing.List[int]]:
+def file_mask(image: SuperPixelImage, interval_image, **_) -> typing.List[typing.List[int]]:
     """Intervals taken from another specified input image. Must be black and white, and the same size as the input
     image."""
     intervals = []
@@ -93,7 +94,7 @@ def file_mask(image, interval_image, **_) -> typing.List[typing.List[int]]:
 
 
 def file_edges(
-    image, interval_image, lower_threshold, **_
+    image: SuperPixelImage, interval_image, lower_threshold, **_
 ) -> typing.List[typing.List[int]]:
     """Intervals defined by performing edge detection on the file specified by -f. Must be the same size as the input
     image."""
@@ -112,7 +113,7 @@ def file_edges(
     return intervals
 
 
-def none(image, **_) -> typing.List[typing.List[int]]:
+def none(image: SuperPixelImage, **_) -> typing.List[typing.List[int]]:
     """Sort whole rows, only stopping at image borders."""
     intervals = []
     for y in range(image.size[1]):

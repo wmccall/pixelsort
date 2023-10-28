@@ -1,11 +1,14 @@
 import functools
 import typing
 
+from pixelsort.super_pixel_image import SuperPixel
+
 
 @functools.cache
-def lightness(pixel: typing.Tuple[int, int, int]) -> float:
+def lightness(super_pixel: SuperPixel) -> float:
     """Sort by the lightness of a pixel according to a HLS representation."""
     # taken from rgb_to_hls
+    pixel = super_pixel.average_pixel
     r, g, b = pixel[:3]
     maxc = max(r, g, b)
     minc = min(r, g, b)
@@ -13,9 +16,10 @@ def lightness(pixel: typing.Tuple[int, int, int]) -> float:
 
 
 @functools.cache
-def hue(pixel: typing.Tuple[int, int, int]) -> float:
+def hue(super_pixel: SuperPixel) -> float:
     """Sort by the hue of a pixel according to a HLS representation."""
     # taken from rgb_to_hls
+    pixel = super_pixel.average_pixel
     r, g, b = pixel[:3]
     maxc = max(r, g, b)
     minc = min(r, g, b)
@@ -37,9 +41,10 @@ def hue(pixel: typing.Tuple[int, int, int]) -> float:
 
 
 @functools.cache
-def saturation(pixel: typing.Tuple[int, int, int]) -> float:
+def saturation(super_pixel: SuperPixel) -> float:
     """Sort by the saturation of a pixel according to a HLS representation."""
     # taken from rgb_to_hls
+    pixel = super_pixel.average_pixel
     r, g, b = pixel[:3]
     maxc = max(r, g, b)
     minc = min(r, g, b)
@@ -53,13 +58,15 @@ def saturation(pixel: typing.Tuple[int, int, int]) -> float:
     return s
 
 
-def intensity(pixel: typing.Tuple[int, int, int]) -> int:
+def intensity(super_pixel: SuperPixel) -> int:
     """Sort by the intensity of a pixel, i.e. the sum of all the RGB values."""
+    pixel = super_pixel.average_pixel
     return pixel[0] + pixel[1] + pixel[2]
 
 
-def minimum(pixel: typing.Tuple[int, int, int]) -> int:
+def minimum(super_pixel: SuperPixel) -> int:
     """Sort on the minimum RGB value of a pixel (either the R, G or B)."""
+    pixel = super_pixel.average_pixel
     return min(pixel[0], pixel[1], pixel[2])
 
 

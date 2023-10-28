@@ -52,39 +52,51 @@ def pixelsort(
     image = image.convert("RGBA").rotate(angle, expand=True)
     image_data = image.load()
 
+    logging.debug("Converting to SuperPixelImage...")
     super_pixel_image = SuperPixelImage(
         image=original, super_pixel_size=super_pixel_size
     )
+
     # import pdb; pdb.set_trace()
     # return super_pixel_image.to_standard_image()
     # return super_pixel_image.to_scaled_image()
 
-    mask_image = mask_image if mask_image else Image.new("1", original.size, color=255)
+    logging.debug("Loading Mask...")
+    mask_image = mask_image if mask_image else Image.new("1", super_pixel_image.size, color=255)
     mask_image = mask_image.convert("1").rotate(angle, expand=True, fillcolor=0)
     mask_data = mask_image.load()
 
-    interval_image = (
-        (interval_image.convert("1").rotate(angle, expand=True))
-        if interval_image
-        else None
-    )
+    logging.debug("Loading Interval Image...")
+    if interval_image:
+        threshold = 200
+        fn = lambda x : 255 if x > threshold else 0
+        interval_image = interval_image.resize(super_pixel_image.size)
+        interval_image = interval_image.convert('L').point(fn, mode='1')
+        interval_image = interval_image.rotate(angle, expand=True)
+
     logging.debug("Determining intervals...")
     intervals = interval_choices[interval_function](
-        image,
+        super_pixel_image,
         lower_threshold=lower_threshold,
         upper_threshold=upper_threshold,
         char_length=char_length,
         interval_image=interval_image,
     )
     logging.debug("Sorting pixels...")
-    sorted_pixels = sort_image(
-        image.size,
-        image_data,
+    sort_image(
+        super_pixel_image.size,
+        super_pixel_image,
         mask_data,
         intervals,
         randomness,
         sorting_choices[sorting_function],
     )
+
+    # import pdb; pdb.set_trace()
+
+    # TODO: rotate image back
+
+    return super_pixel_image.to_standard_image()
 
     output_img = _place_pixels(sorted_pixels, mask_data, image_data, image.size)
     if angle != 0:

@@ -1,10 +1,12 @@
+import logging
 from PIL import Image
+import numpy as np
 
 
 class SuperPixel:
     def __init__(self, pixels: Image):
         self.pixels = pixels
-        self.average_pixel = pixels.resize((1, 1))
+        self.average_pixel = pixels.resize((1, 1)).load()[0,0]
 
 
 def _extract_super_pixel(
@@ -29,10 +31,12 @@ def _extract_super_pixel(
 def _image_to_2d_super_pixel_array(
     image: Image.Image,
     super_pixel_size: int,
-) -> list[list[SuperPixel]]:
+) -> np.ndarray:
+    logging.debug("Generating Array...")
     image_width, image_height = image.size
     super_pixels = []
     for row in range(0, image_height, super_pixel_size):
+        logging.debug(f"Generating Row {row/super_pixel_size}...")
         super_pixel_row = []
         for col in range(0, image_width, super_pixel_size):
             super_pixel = _extract_super_pixel(
@@ -40,7 +44,12 @@ def _image_to_2d_super_pixel_array(
             )
             super_pixel_row.append(super_pixel)
         super_pixels.append(super_pixel_row)
-    return super_pixels
+    logging.debug("Converting to Numpy Array...")
+    arr = np.array(super_pixels)
+    logging.debug("Transposing Numpy Array...")
+    arr = np.transpose(arr)
+    logging.debug("Done Generating Array...")
+    return arr
 
 
 class SuperPixelImage:
@@ -50,10 +59,11 @@ class SuperPixelImage:
             super_pixel_size=super_pixel_size,
         )
         self.super_pixel_size = super_pixel_size
-        self.size = image.size
+        self.original_size = image.size
+        self.size = (len(self.super_pixels), len(self.super_pixels[0]))
 
     def to_standard_image(self) -> Image.Image:
-        new_image = Image.new("RGB", self.size)
+        new_image = Image.new("RGB", self.original_size)
 
         # Paste each super_pixel into the new image at its corresponding position in the grid
         y_offset = 0
@@ -69,9 +79,7 @@ class SuperPixelImage:
         return new_image
 
     def to_scaled_image(self) -> Image.Image:
-        image_height = len(self.super_pixels)
-        image_width = len(self.super_pixels[0])
-        new_image = Image.new("RGB", (image_width, image_height))
+        new_image = Image.new("RGB", self.size)
 
         # Paste each average_pixel into the new image at its corresponding position in the grid
         for y_offset, row in enumerate(self.super_pixels):
