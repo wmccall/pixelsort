@@ -1,3 +1,4 @@
+import os
 from PIL import Image
 import logging
 from pixelsort.argparams import parse_args
@@ -11,6 +12,8 @@ interval_file_path = args.pop("interval_file_path")
 mask_path = args.pop("mask_path")
 
 if image_output_path is None:
+    if not os.path.exists("out/"):
+        os.mkdir("out/")
     image_output_path = f"out/{id_generator()}.png"
     logging.warning("No output path provided, using " + image_output_path)
 
