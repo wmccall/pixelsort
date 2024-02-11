@@ -19,7 +19,6 @@ def parse_args():
         default=DEFAULTS["interval_function"],
         help="Function to determine sorting intervals",
     )
-    parser.add_argument("-f", "--int_file", help="Image used for defining intervals.")
     parser.add_argument(
         "-t",
         "--threshold",
@@ -62,6 +61,7 @@ def parse_args():
         default=DEFAULTS["randomness"],
         help="What percentage of intervals are NOT sorted",
     )
+    parser.add_argument("-f", "--int_file", help="Image used for defining intervals.")
     parser.add_argument(
         "-s",
         "--sorting_function",
