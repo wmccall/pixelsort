@@ -1,21 +1,17 @@
 import logging
 import typing
 
-from PIL import Image
-
-# python implementation of the PixelAccess class returned by im.load(), has the same functions so is fine for type hints
-from PIL import PyAccess
+from PIL import Image, PyAccess
 
 from pixelsort.constants import DEFAULTS
-from pixelsort.interval import choices as interval_choices
-from pixelsort.sorter import sort_image
-from pixelsort.sorting import choices as sorting_choices
-from pixelsort.util import crop_to, downscale_image
+from pixelsort.interval import interval_choices
+from pixelsort.sorting import sort_image
+from pixelsort.sorting import sorting_choices
+from pixelsort.util import crop_to, calculate_scaled_size
 from pixelsort.super_pixel_image import (
     SuperPixelImage,
-    SuperPixel,
-    calculate_scaled_size,
 )
+from pixelsort.super_pixel import SuperPixel
 
 
 def pixelsort(
@@ -57,15 +53,10 @@ def pixelsort(
 
     logging.debug("Converting to SuperPixelImage...")
     super_pixel_image = SuperPixelImage(image=image, super_pixel_size=super_pixel_size)
+    scaled_size = calculate_scaled_size(original.size, super_pixel_size)
 
     logging.debug("Loading Mask...")
-    mask_image = (
-        mask_image
-        if mask_image
-        else Image.new(
-            "1", calculate_scaled_size(original.size, super_pixel_size), color=255
-        )
-    )
+    mask_image = mask_image if mask_image else Image.new("1", scaled_size, color=255)
     mask_image = mask_image.convert("1").rotate(angle, expand=True, fillcolor=0)
     mask_data = mask_image.load()
 
@@ -73,9 +64,7 @@ def pixelsort(
     if interval_image:
         threshold = 200
         fn = lambda x: 255 if x > threshold else 0
-        interval_image = interval_image.resize(
-            calculate_scaled_size(original.size, super_pixel_size)
-        )
+        interval_image = interval_image.resize(scaled_size)
         interval_image = interval_image.convert("L").point(fn, mode="1")
         interval_image = interval_image.rotate(angle, expand=True)
 

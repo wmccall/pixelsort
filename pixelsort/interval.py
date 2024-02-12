@@ -1,7 +1,7 @@
 import typing
 from random import randint, random as random_range
 
-from PIL import ImageFilter, Image
+from PIL import ImageFilter
 
 from pixelsort.sorting import lightness
 from pixelsort.super_pixel_image import SuperPixelImage
@@ -123,7 +123,7 @@ def none(image: SuperPixelImage, **_) -> typing.List[typing.List[int]]:
     return intervals
 
 
-choices = {
+interval_choices = {
     "random": random,
     "threshold": threshold,
     "edges": edge,

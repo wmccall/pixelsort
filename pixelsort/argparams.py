@@ -2,8 +2,8 @@ import argparse
 import logging
 
 from pixelsort.constants import DEFAULTS
-from pixelsort.interval import choices as interval_choices
-from pixelsort.sorting import choices as sorting_choices
+from pixelsort.interval import interval_choices
+from pixelsort.sorting import sorting_choices
 
 
 def parse_args():
