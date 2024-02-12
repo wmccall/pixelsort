@@ -1,6 +1,8 @@
 import logging
 import math
-from PIL import Image
+import typing
+
+from PIL import Image, PyAccess
 import numpy as np
 
 
@@ -60,13 +62,23 @@ def _image_to_2d_super_pixel_array(
 
 class SuperPixelImage:
     def __init__(self, image: Image.Image, super_pixel_size: int):
-        self.super_pixels = _image_to_2d_super_pixel_array(
-            image=image,
-            super_pixel_size=super_pixel_size,
-        )
+        self.image = image.convert("RGBA")
         self.super_pixel_size = super_pixel_size
-        self.original_size = image.size
         self.size = (len(self.super_pixels), len(self.super_pixels[0]))
+
+    def rotate(self, angle: float) -> None:
+        self.image = self.image.rotate(angle)
+
+    def sort(
+        self,
+        mask_data: PyAccess.PyAccess,
+        intervals: typing.List[typing.List[int]],
+        randomness: float,
+        sorting_function: typing.Callable[
+            [typing.List[typing.Tuple[int, int, int]]], float
+        ],
+    ):
+        pass
 
     def to_standard_image(self) -> Image.Image:
         new_image = Image.new("RGBA", self.original_size)

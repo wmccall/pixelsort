@@ -53,7 +53,6 @@ def pixelsort(
     :return: pixelsorted image
     """
     original = image
-    image = image.convert("RGBA").rotate(angle, expand=True)
 
     logging.debug("Converting to SuperPixelImage...")
     super_pixel_image = SuperPixelImage(image=image, super_pixel_size=super_pixel_size)
