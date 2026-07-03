@@ -93,13 +93,16 @@ def saturation(super_pixel: SuperPixel) -> float:
     r, g, b = pixel[:3]
     maxc = max(r, g, b)
     minc = min(r, g, b)
-    l = (minc + maxc) / 2.0
-    if minc == maxc:
+    sumc = minc + maxc
+    diffc = maxc - minc
+    sdiv = 2.0 - diffc
+
+    if minc == maxc or sumc == 0 or sdiv == 0:
         return 0.0
-    if l <= 0.5:
-        s = (maxc - minc) / (maxc + minc)
+    if sumc / 2.0 <= 0.5:
+        s = diffc / sumc
     else:
-        s = (maxc - minc) / (2.0 - maxc - minc)
+        s = diffc / sdiv
     return s
 
 
