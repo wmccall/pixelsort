@@ -1,7 +1,5 @@
 import random
 import typing
-import functools
-import typing
 
 # python implementation of the PixelAccess class returned by im.load(), has the same functions so is fine for type hints
 from PIL import PyAccess
@@ -49,18 +47,20 @@ def sort_interval(
 # Sort functions
 
 
-@functools.cache
-def lightness(super_pixel: SuperPixel) -> float:
-    """Sort by the lightness of a pixel according to a HLS representation."""
+def pixel_lightness(pixel: typing.Tuple[int, int, int]) -> float:
+    """Lightness of a raw pixel tuple according to a HLS representation."""
     # taken from rgb_to_hls
-    pixel = super_pixel.average_pixel
     r, g, b = pixel[:3]
     maxc = max(r, g, b)
     minc = min(r, g, b)
     return (minc + maxc) / 2.0
 
 
-@functools.cache
+def lightness(super_pixel: SuperPixel) -> float:
+    """Sort by the lightness of a pixel according to a HLS representation."""
+    return pixel_lightness(super_pixel.average_pixel)
+
+
 def hue(super_pixel: SuperPixel) -> float:
     """Sort by the hue of a pixel according to a HLS representation."""
     # taken from rgb_to_hls
@@ -85,7 +85,6 @@ def hue(super_pixel: SuperPixel) -> float:
     return h
 
 
-@functools.cache
 def saturation(super_pixel: SuperPixel) -> float:
     """Sort by the saturation of a pixel according to a HLS representation."""
     # taken from rgb_to_hls

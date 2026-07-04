@@ -1,14 +1,19 @@
 from PIL import Image
 
-from pixelsort.util import image_to_2d_super_pixel_array
+from pixelsort.super_pixel import SuperPixel
 
 
 class SuperPixelImage:
     def __init__(self, image: Image.Image, super_pixel_size: int):
-        self.super_pixels = image_to_2d_super_pixel_array(
-            image=image,
-            super_pixel_size=super_pixel_size,
-        )
         self.super_pixel_size = super_pixel_size
         self.original_size = image.size
-        self.size = (len(self.super_pixels), len(self.super_pixels[0]))
+        self.scaled_image = (
+            image.reduce(super_pixel_size) if super_pixel_size > 1 else image
+        )
+        self.size = self.scaled_image.size
+        average_data = self.scaled_image.load()
+        self.super_pixels = {
+            (x, y): SuperPixel(image, x, y, super_pixel_size, average_data[x, y])
+            for x in range(self.size[0])
+            for y in range(self.size[1])
+        }

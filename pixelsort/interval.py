@@ -3,7 +3,7 @@ from random import randint, random as random_range
 
 from PIL import ImageFilter
 
-from pixelsort.sorting import lightness
+from pixelsort.sorting import lightness, pixel_lightness
 from pixelsort.super_pixel_image import SuperPixelImage
 
 
@@ -11,14 +11,14 @@ def edge(
     image: SuperPixelImage, lower_threshold: float, **_
 ) -> typing.List[typing.List[int]]:
     """Performs an edge detection, which is used to define intervals. Tweak threshold with threshold."""
-    edge_data = image.filter(ImageFilter.FIND_EDGES).convert("RGBA").load()
+    edge_data = image.scaled_image.filter(ImageFilter.FIND_EDGES).convert("RGBA").load()
     intervals = []
 
     for y in range(image.size[1]):
         intervals.append([])
         flag = True
         for x in range(image.size[0]):
-            if lightness(edge_data[x, y]) < lower_threshold * 255:
+            if pixel_lightness(edge_data[x, y]) < lower_threshold * 255:
                 flag = True
             elif flag:
                 intervals[y].append(x)
@@ -107,7 +107,7 @@ def file_edges(
         intervals.append([])
         flag = True
         for x in range(image.size[0]):
-            if lightness(edge_data[x, y]) < lower_threshold * 255:
+            if pixel_lightness(edge_data[x, y]) < lower_threshold * 255:
                 flag = True
             elif flag:
                 intervals[y].append(x)
