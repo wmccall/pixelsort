@@ -1,6 +1,7 @@
 import typing
 from random import randint, random as random_range
 
+import numpy as np
 from PIL import ImageFilter
 
 from pixelsort.sorting import lightness, pixel_lightness
@@ -31,15 +32,9 @@ def threshold(
 ) -> typing.List[typing.List[int]]:
     """Intervals defined by lightness thresholds; only pixels with a lightness between the upper and lower thresholds
     are sorted."""
-    intervals = []
-    image_data = image.super_pixels
-    for y in range(image.size[1]):
-        intervals.append([])
-        for x in range(image.size[0]):
-            level = lightness(image_data[x, y])
-            if level < lower_threshold * 255 or level > upper_threshold * 255:
-                intervals[y].append(x)
-    return intervals
+    level = lightness(image.average_colors)
+    boundaries = (level < lower_threshold * 255) | (level > upper_threshold * 255)
+    return [np.nonzero(row)[0] for row in boundaries]
 
 
 def random(image: SuperPixelImage, char_length, **_) -> typing.List[typing.List[int]]:

@@ -1,17 +1,15 @@
 import logging
 import typing
 
-from PIL import Image, PyAccess
+import numpy as np
+from PIL import Image
 
 from pixelsort.constants import DEFAULTS
 from pixelsort.interval import interval_choices
 from pixelsort.sorting import sort_image
 from pixelsort.sorting import sorting_choices
 from pixelsort.util import crop_to, calculate_scaled_size
-from pixelsort.super_pixel_image import (
-    SuperPixelImage,
-)
-from pixelsort.super_pixel import SuperPixel
+from pixelsort.super_pixel_image import SuperPixelImage
 
 
 def pixelsort(
@@ -58,7 +56,7 @@ def pixelsort(
     logging.debug("Loading Mask...")
     mask_image = mask_image if mask_image else Image.new("1", scaled_size, color=255)
     mask_image = mask_image.convert("1").rotate(angle, expand=True, fillcolor=0)
-    mask_data = mask_image.load()
+    mask_data = _mask_array(mask_image, super_pixel_image.size)
 
     logging.debug("Loading Interval Image...")
     if interval_image:
@@ -77,7 +75,7 @@ def pixelsort(
         interval_image=interval_image,
     )
     logging.debug("Sorting pixels...")
-    sorted_pixels = sort_image(
+    perm = sort_image(
         super_pixel_image.size,
         super_pixel_image,
         mask_data,
@@ -87,7 +85,7 @@ def pixelsort(
     )
 
     logging.debug("Processing sorted pixels...")
-    output_img = _place_pixels(sorted_pixels, mask_data, super_pixel_image)
+    output_img = _place_blocks(perm, super_pixel_image)
     if angle != 0:
         output_img = output_img.rotate(-angle, expand=True)
         output_img = crop_to(output_img, original)
@@ -101,26 +99,34 @@ def pixelsort(
     return final_image
 
 
-def _place_pixels(
-    pixels: list[list[SuperPixel]],
-    mask: PyAccess.PyAccess,
-    super_pixel_image: SuperPixelImage,
-):
-    super_pixel_size = super_pixel_image.super_pixel_size
-    output_img = Image.new("RGBA", super_pixel_image.original_size)
-    size = super_pixel_image.size
-    for y in range(size[1]):
-        count = 0
-        for x in range(size[0]):
-            if not mask[x, y]:
-                output_img.paste(
-                    super_pixel_image.super_pixels[x, y].pixels,
-                    (x * super_pixel_size, y * super_pixel_size),
-                )
-            else:
-                output_img.paste(
-                    pixels[y][count].pixels,
-                    (x * super_pixel_size, y * super_pixel_size),
-                )
-                count += 1
-    return output_img
+def _mask_array(mask_image: Image.Image, size: typing.Tuple[int, int]) -> np.ndarray:
+    """Mask as a boolean array matching the super pixel grid, padded with
+    False if rotation rounding left the mask a pixel short."""
+    cols, rows = size
+    mask = np.zeros((rows, cols), dtype=bool)
+    source = np.asarray(mask_image, dtype=bool)[:rows, :cols]
+    mask[: source.shape[0], : source.shape[1]] = source
+    return mask
+
+
+def _place_blocks(perm: np.ndarray, super_pixel_image: SuperPixelImage) -> Image.Image:
+    """Rearranges the source image's super pixel blocks according to perm in
+    one vectorized operation, at full resolution."""
+    block = super_pixel_image.super_pixel_size
+    cols, rows = super_pixel_image.size
+    source_width, source_height = super_pixel_image.original_size
+
+    source = np.asarray(super_pixel_image.source_image)
+    pad_h = rows * block - source_height
+    pad_w = cols * block - source_width
+    source = np.pad(source, ((0, pad_h), (0, pad_w), (0, 0)))
+
+    # One row of blocks at a time: map each output pixel column to its source
+    # column, then gather. Padded (transparent) pixels travel with blocks that
+    # straddle the right/bottom edge, matching the old paste() behavior.
+    row_view = source.reshape(rows, block, cols * block, 4)
+    col_map = (perm[:, :, None] * block + np.arange(block)).reshape(rows, cols * block)
+    output = np.take_along_axis(row_view, col_map[:, None, :, None], axis=2)
+    output = output.reshape(rows * block, cols * block, 4)
+
+    return Image.fromarray(output[:source_height, :source_width], "RGBA")
