@@ -8,7 +8,7 @@ from pixelsort.constants import DEFAULTS
 from pixelsort.interval import interval_choices
 from pixelsort.sorting import sort_image
 from pixelsort.sorting import sorting_choices
-from pixelsort.util import crop_to, calculate_scaled_size
+from pixelsort.util import crop_to
 from pixelsort.super_pixel_image import SuperPixelImage
 
 
@@ -51,20 +51,20 @@ def pixelsort(
 
     logging.debug("Converting to SuperPixelImage...")
     super_pixel_image = SuperPixelImage(image=image, super_pixel_size=super_pixel_size)
-    scaled_size = calculate_scaled_size(original.size, super_pixel_size)
 
     logging.debug("Loading Mask...")
-    mask_image = mask_image if mask_image else Image.new("1", scaled_size, color=255)
-    mask_image = mask_image.convert("1").rotate(angle, expand=True, fillcolor=0)
-    mask_data = _mask_array(mask_image, super_pixel_image.size)
+    mask_image = mask_image if mask_image else Image.new("1", original.size, color=255)
+    mask_image = mask_image.convert("L").rotate(angle, expand=True, fillcolor=0)
+    mask_data = _mask_array(mask_image, super_pixel_image)
 
     logging.debug("Loading Interval Image...")
     if interval_image:
         threshold = 200
         fn = lambda x: 255 if x > threshold else 0
-        interval_image = interval_image.resize(scaled_size)
-        interval_image = interval_image.convert("L").point(fn, mode="1")
-        interval_image = interval_image.rotate(angle, expand=True)
+        interval_image = interval_image.convert("L").rotate(angle, expand=True)
+        if super_pixel_size > 1:
+            interval_image = interval_image.reduce(super_pixel_size)
+        interval_image = interval_image.point(fn, mode="1")
 
     logging.debug("Determining intervals...")
     intervals = interval_choices[interval_function](
@@ -99,12 +99,16 @@ def pixelsort(
     return final_image
 
 
-def _mask_array(mask_image: Image.Image, size: typing.Tuple[int, int]) -> np.ndarray:
-    """Mask as a boolean array matching the super pixel grid, padded with
-    False if rotation rounding left the mask a pixel short."""
-    cols, rows = size
+def _mask_array(
+    mask_image: Image.Image, super_pixel_image: SuperPixelImage
+) -> np.ndarray:
+    """Mask as a boolean array on the super pixel grid: a block is sortable
+    if any of its pixels are masked for sorting."""
+    if super_pixel_image.super_pixel_size > 1:
+        mask_image = mask_image.reduce(super_pixel_image.super_pixel_size)
+    cols, rows = super_pixel_image.size
     mask = np.zeros((rows, cols), dtype=bool)
-    source = np.asarray(mask_image, dtype=bool)[:rows, :cols]
+    source = np.asarray(mask_image)[:rows, :cols] > 0
     mask[: source.shape[0], : source.shape[1]] = source
     return mask
 

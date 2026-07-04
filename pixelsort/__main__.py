@@ -14,7 +14,8 @@ mask_path = args.pop("mask_path")
 if image_output_path is None:
     if not os.path.exists("out/"):
         os.mkdir("out/")
-    image_output_path = f"out/{id_generator()}.png"
+    extension = os.path.splitext(image_input_path)[1] or ".png"
+    image_output_path = f"out/{id_generator()}{extension}"
     logging.warning("No output path provided, using " + image_output_path)
 
 logging.debug("Opening image...")
@@ -28,4 +29,7 @@ if interval_file_path:
 
 image = pixelsort(**args)
 logging.debug("Saving image...")
+if os.path.splitext(image_output_path)[1].lower() in (".jpg", ".jpeg"):
+    # JPEG has no alpha channel
+    image = image.convert("RGB")
 image.save(image_output_path)

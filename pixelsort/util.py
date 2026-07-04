@@ -1,4 +1,3 @@
-import math
 import time
 
 from PIL import Image
@@ -26,10 +25,3 @@ def crop_to(image_to_crop: Image.Image, reference_image: Image.Image) -> Image.I
     right = dx / 2 + reference_size[0]
     lower = dy / 2 + reference_size[1]
     return image_to_crop.crop(box=(int(left), int(upper), int(right), int(lower)))
-
-
-def calculate_scaled_size(size, super_pixel_size):
-    return (
-        math.ceil(size[0] / super_pixel_size),
-        math.ceil(size[1] / super_pixel_size),
-    )
