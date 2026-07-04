@@ -6,20 +6,20 @@ Have a look at [this post](http://satyarth.me/articles/pixel-sorting/) or [/r/pi
 
 ## Dependencies
 
-Should work in both Python 2 and 3, but Python 3 is recommended.
+Python 3.9+ is required.
 
 ## Usage
 
 From the command line:
 
-```bash
+```shell
 pip install pixelsort
 python3 -m pixelsort %PathToImage% [options]
 ```
 
 Tip: To replicate Kim Asendorf's original [processing script](https://github.com/kimasendorf/ASDFPixelSort), first sort vertically and then horizontally in `threshold` (default) mode:
 
-```bash
+```shell
 python3 -m pixelsort %PathToImage% -a 90
 python3 -m pixelsort %PathToSortedImage%
 ```
@@ -40,7 +40,7 @@ As a package:
 
 Parameter              | Flag | Description
 -----------------------|------|------------
-Output path            | `-o` | Path of output file. Uses the current time for the file name by default.
+Output path            | `-o` | Path of output file. Uses the current time for the file name in the directory `./out` by default.
 Interval function      | `-i` | Controls how the intervals used for sorting are defined. See below for more details and examples. Threshold by default.
 Threshold (lower)      | `-t` | How dark must a pixel be to be considered as a 'border' for sorting? Takes values from 0-1. 0.25 by default. Used in `edges` and `threshold` modes.
 Threshold (upper)      | `-u` | How bright must a pixel be to be considered as a 'border' for sorting? Takes values from 0-1. 0.8 by default. Used in `threshold` mode.
@@ -62,7 +62,7 @@ Interval function | Description
 `threshold`       | Intervals defined by lightness thresholds; only pixels with a lightness between the upper and lower thresholds are sorted.
 `waves`           | Intervals are waves of nearly uniform widths. Control width of waves with `char_length`.
 `file`            | Intervals taken from another specified input image. Must be black and white, and the same size as the input image.
-`file-edges`      | Intevals defined by performing edge detection on the file specified by `-f`. Must be the same size as the input image.
+`file-edges`      | Intervals defined by performing edge detection on the file specified by `-f`. Must be the same size as the input image.
 `none`            | Sort whole rows, only stopping at image borders.
 
 #### Sorting Functions
@@ -80,7 +80,7 @@ Sorting function  | Description
 There are some difficulties in pixel sorting Large images:
 
 * They have a LOT of data to process. This can be a terribly slow effort iterating over tens of millions of pixels.
-* Given that a pixel is a descrete, fixed size, it's individual impact on an image diminishes as image size increases. In other words, sorting pixels at the individual pixel level can make the image look smudgy, rather than capture that crisp pixel sort we love.
+* Given that a pixel is a discrete, fixed size, its individual impact on an image diminishes as image size increases. In other words, sorting pixels at the individual pixel level can make the image look smudgy, rather than capture that crisp pixel sort we love.
 
 To combat both of these issues, Super Pixels were the way forward. Super Pixels are quite simple, really: a NxN chunk of pixels. The algorithm will use the average color information of the Super Pixel to sort chunks of the image. Breaking the image down like this allows us to reduce the sorting iterations, and gives the final product a more digital and crisp style, all the while retaining the image's original scale and detail.
 
@@ -111,6 +111,14 @@ To combat both of these issues, Super Pixels were the way forward. Super Pixels 
 ![file](/examples/mask.png)
 
 ![file](/examples/masked.png)
+
+* `super pixels`: Specified with `-p`. Must be a positive integer smaller than the length and width of the input image.
+
+`python3 -m pixelsort examples/image_2.jpg -p 20`
+
+![file](/examples/image_2.jpg)
+
+![file](/examples/super_pixels_small.jpg)
 
 ### Todo
 

@@ -43,7 +43,7 @@ def pixelsort(
     :param upper_threshold: How bright must a pixel be to be considered as a 'border' for sorting? Takes values from
         0-1. Used in threshold mode.
     :param angle: Angle at which you're pixel sorting in degrees.
-    :param super_pixel_size:
+    :param super_pixel_size: Size of super pixels to sort. Defaults to 1 (single pixel).
     :return: pixelsorted image
     """
     original = image
