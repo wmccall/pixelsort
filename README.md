@@ -77,7 +77,7 @@ Sorting function  | Description
 
 ### More on Super Pixels
 
-There are some difficulties in pixel sorting Large images:
+There are some difficulties in pixel sorting large images:
 
 * They have a LOT of data to process. This can be a terribly slow effort iterating over tens of millions of pixels.
 * Given that a pixel is a discrete, fixed size, its individual impact on an image diminishes as image size increases. In other words, sorting pixels at the individual pixel level can make the image look smudgy, rather than capture that crisp pixel sort we love.
